@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@300&family=Gochi+Hand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rampart+One&display=swap');
+body {
+    background-color: #383a4e;
+    color: white;
+    font-family: 'Dosis', sans-serif;
+    font-size: 20px;
+}
+h1 {
+    text-align: center;
+    margin: 60px auto;
+    font-family: 'Rampart One', cursive;
+    letter-spacing: 0.4px;
+    font-size: 40px;
+}
+h3 {
+    font-family: 'Rampart One', cursive;
+    letter-spacing: 0.8px;
+    font-size: 29px;
+}
+nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: right;
+    align-items: baseline;
+    background-color: #ced5e2;
+    color: #16171f;
+    padding-right: 25px;
+}
+a {
+    color: #383a4e;
+    text-decoration: none;
+    border: 1px solid #383a4e;
+    border-radius: 5px;
+    padding: 15px;
+    background: transparent;
+}
+a:hover {
+    background-color: #383a4e;
+    color: white;
+}
+.a-reverse-color {
+    color: #ced5e2;
+    text-decoration: none;
+    border: 1px solid #ced5e2;
+    border-radius: 5px;
+    padding: 15px;
+    background: transparent;
+}
+.a-reverse-color:hover {
+    background-color: #ced5e2;
+    color: #383a4e;
+}
+form {
+    margin-left: clamp(30px, 20vw, 400px);
+}
+form div {
+    margin-bottom: 35px;
+}
+label {
+    margin-right: 10px;
+}
+input {
+    font-family: 'Dosis', sans-serif;
+    font-size: 20px;
+    color: white;
+    background-color: #252634;
+    border-radius: 5px;
+    border: none;
+    padding: 7px 10px;
+}
+input[type="text"], input[type="email"], input[type="password"],  input[type="date"], input[type="number"] {
+    width: 250px;
+}
+input[type="submit"] {
+    color: silver;
+    margin: 30px auto;
+}
+input[type="submit"]:hover {
+    cursor: pointer;
+    color: white;
+}
+.error {
+    color: hotpink;
+    background-color: rgba(255, 105, 180, 0.08);
+    border-radius: 5px;
+    border: 1px solid hotpink;
+    padding: 10px;
+    position: fixed;
+    top: 250px;
+    right: 150px;
+}
+.success {
+    color: darkcyan;
+    background-color: rgba(0, 139, 139, 0.08);
+    border-radius: 5px;
+    border: 1px solid darkcyan;
+    padding: 10px;
+    position: fixed;
+    top: 250px;
+    right: 150px;
+}
+section {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+    margin: 60px auto;
+}
+article {
+    width: 400px;
+}
+.book-card {
+    width: 300px;
+    border: none;
+    background-color: #ced5e2;
+    border-radius: 5px;
+    box-shadow: 6px 6px 1px #1f202a;
+    color: #383a4e;
+    padding: 10px
+}
+.book-card form {
+    margin-left: 0px;
+}
+@media only screen and (max-width: 650px) {
+    nav {
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 7px;
+    }
+    form div {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    .captcha {
+        width: 17px;
+        height: 30px;
+    }
+}
