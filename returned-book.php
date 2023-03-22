@@ -6,7 +6,8 @@ require 'cookie_handler.php';
 
 <!-- Si l'utilisateurice est connecté-e et le cookie time valide -->
 <?php
-if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$cookie_name]) :
+// if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$cookie_name]) :
+if ($_SESSION['user']) :
 
     $pdo = new PDO('sqlite:database.sqlite', null, null, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

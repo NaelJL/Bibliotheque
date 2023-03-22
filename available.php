@@ -16,45 +16,44 @@ if ($_SESSION['user']) :
     $error = null;
 
     try {
-        // si le cookie time existe et est valide
-        if (isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$cookie_name]) {
+        // // si le cookie time existe et est valide
+        // if (isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$cookie_name]) {
 
-            // pouvoir rendre le livre indisponible
-            if (isset($_POST['non-available'])) {
-                if (!empty($_POST['non-available'])) {
+        // pouvoir rendre le livre indisponible
+        if (isset($_POST['non-available'])) {
+            if (!empty($_POST['non-available'])) {
 
-                    // vérifier que la variable contient trois caractères maximum et la convertir en nombre
-                    if (strlen($_POST['non-available']) <= 3) {
-                        $id_string = trim(htmlspecialchars($_POST['non-available']));
-                        $id = intval($id_string);
+                // vérifier que la variable contient trois caractères maximum et la convertir en nombre
+                if (strlen($_POST['non-available']) <= 3) {
+                    $id_string = trim(htmlspecialchars($_POST['non-available']));
+                    $id = intval($id_string);
 
-                        $query = $pdo->prepare('UPDATE books SET available = 0 WHERE id = :id');
-                        $query->execute([
-                            'id' => $id
-                        ]);
+                    $query = $pdo->prepare('UPDATE books SET available = 0 WHERE id = :id');
+                    $query->execute([
+                        'id' => $id
+                    ]);
 
-                        Header('Location:books-shared.php');
-                    } else {
-                        echo "<p class='error'>Problème avec le livre</p>";
-                    }
+                    Header('Location:books-shared.php');
+                } else {
+                    echo "<p class='error'>Problème avec le livre</p>";
                 }
+            }
 
-                // pouvoir rendre le livre disponible
-            } elseif (isset($_POST['available'])) {
-                if (!empty($_POST['available'])) {
+            // pouvoir rendre le livre disponible
+        } elseif (isset($_POST['available'])) {
+            if (!empty($_POST['available'])) {
 
-                    // vérifier que la variable contient trois caractères maximum et la convertir en nombre
-                    if (strlen($_POST['available']) <= 3) {
-                        $id_string = trim(htmlspecialchars($_POST['available']));
-                        $id = intval($id_string);
+                // vérifier que la variable contient trois caractères maximum et la convertir en nombre
+                if (strlen($_POST['available']) <= 3) {
+                    $id_string = trim(htmlspecialchars($_POST['available']));
+                    $id = intval($id_string);
 
-                        $query = $pdo->prepare('UPDATE books SET available = 1 WHERE id = :id');
-                        $query->execute([
-                            'id' => $id
-                        ]);
+                    $query = $pdo->prepare('UPDATE books SET available = 1 WHERE id = :id');
+                    $query->execute([
+                        'id' => $id
+                    ]);
 
-                        Header('Location:books-shared.php');
-                    }
+                    Header('Location:books-shared.php');
                 }
             }
         }

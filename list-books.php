@@ -6,7 +6,8 @@ require 'cookie_handler.php';
 
 <!-- Si l'utilisateurice est connecté-e et le cookie time valide -->
 <?php
-if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$cookie_name]) :
+// if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$cookie_name]) :
+if ($_SESSION['user']) :
 ?>
 
     <nav>
@@ -23,6 +24,79 @@ if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$coo
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
     ]);
     ?>
+
+    <section>
+        <form action="" method="POST">
+            <input type="text" name="search" />
+            <input type="submit" value="Rechercher un livre" />
+        </form>
+    </section>
+
+    <?php
+    $results = "";
+
+    // faire une recherche dans les titres de livres
+    if (isset($_POST['search'])) {
+        if (!empty($_POST['search'])) {
+            if (strlen($_POST['search']) < $max_length) {
+
+                $search_input = trim(htmlspecialchars($_POST['search']));
+
+                $search = $pdo->prepare('SELECT * FROM books WHERE title LIKE :contain');
+                $search->execute([
+                    'contain' => '%' . $search_input . '%'
+                ]);
+                $results = $search->fetchAll();
+            } else {
+                echo "<p class='error'>La recherche est trop longue</p>";
+            }
+        } else {
+            echo "<p class='error'>La recherche ne peut être vide</p>";
+        }
+    }
+
+    // si un ou plusieurs livres correspondent à la recherche
+    if ($results) :
+    ?>
+        <section>
+            <?php foreach ($results as $result) : ?>
+
+                <article class="book-card">
+                    <p>Titre : <strong><?php echo $result->title ?></strong></p>
+                    <p>Auteur-trice-s : <strong><?php echo $result->author ?></strong></p>
+                    <p>Traduction :
+                        <?php $translator = $result->translator ? "<strong>$result->translator</strong>" : "-";
+                        echo  $translator; ?>
+                    </p>
+                    <p>Collection :
+                        <?php $collection = $result->collection ? "<strong>$result->collection</strong>" : "-";
+                        echo  $collection; ?>
+                    </p>
+                    <p>Edition :
+                        <?php $edition = $result->edition ? "<strong>$result->edition</strong>" : "-";
+                        echo  $edition; ?>
+                    </p>
+                    <p>Année de publication :
+                        <?php $publication = $result->publication ? "<strong>$result->publication</strong>" : "-";
+                        echo  $publication; ?>
+                    </p>
+                    <p>Nombre de pages :
+                        <?php $pages = $result->pages ? "<strong>$result->pages</strong>" : "-";
+                        echo  $pages; ?>
+                    </p>
+
+                    <!-- si le livre est disponible, pouvoir l'emprunter -->
+                    <form action="borrow.php" method="POST">
+                        <input type="hidden" name="borrow" value="<?php echo $result->id ?>" />
+                        <input type="submit" value="Emprunter" />
+                    </form>
+                </article>
+            <?php endforeach; ?>
+
+        </section>
+        <hr />
+        <hr />
+    <?php endif; ?>
 
     <section>
 
@@ -71,7 +145,7 @@ if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$coo
             <?php endif; ?>
         <?php endforeach; ?>
 
-        <!-- Lister les livres que l'on peut réserver (déjà empruntés) -->
+        <!-- Lister les livres indisponibles (déjà empruntés) -->
         <?php
         $query = $pdo->prepare('SELECT books.id, books.title, books.author, books.translator, books.collection, books.edition, books.publication, books.pages, books.email, books.available, borrowed_books.date_return FROM books, borrowed_books WHERE books.id = borrowed_books.book_id');
         $query->execute();
@@ -80,7 +154,7 @@ if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$coo
         foreach ($books as $book) :
             if ($book->available == 0) : ?>
 
-                <!-- afficher les livres que l'on peut réserver dans des cards -->
+                <!-- afficher les livres dans des cards -->
                 <article class="book-card">
                     <p>Titre : <strong><?php echo $book->title ?></strong></p>
                     <p>Auteur-trice-s : <strong><?php echo $book->author ?></strong></p>
@@ -104,13 +178,17 @@ if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$coo
                         <?php $pages = $book->pages ? "<strong>$book->pages</strong>" : "-";
                         echo  $pages; ?>
                     </p>
-                    <p>Ce livre est déjà emprunté jusqu'au : <strong><?php echo $book->date_return ?></strong></p>
 
-                    <!-- Si le livre n'est pas disponible, pouvoir le réserver -->
-                    <!-- <form action="reserve.php" method="POST">
-                        <input type="hidden" name="reserve" value="<?php echo $book->id ?>" />
-                        <input type="submit" value="Réserver" />
-                    </form> -->
+                    <?php // formater les dates pour qu'elles soient plus lisibles
+                    $date_return = stripslashes($book->date_return);
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_return)) {
+                        $date_return_date = new DateTime($date_return);
+                        $date_return_ok = $date_return_date->format('d/m/Y');
+                    }
+                    ?>
+
+                    <p>Ce livre est déjà emprunté jusqu'au : <strong><?php echo $date_return_ok ?></strong></p>
+
                 </article>
 
             <?php endif ?>
