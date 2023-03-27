@@ -128,7 +128,8 @@ article {
 @media only screen and (max-width: 650px) {
     nav {
         flex-direction: column;
-        justify-content: flex-end;
+        justify-content: right;
+        align-items: flex-start;
         gap: 7px;
     }
     form div {

@@ -85,11 +85,28 @@ if ($_SESSION['user']) :
                         echo  $pages; ?>
                     </p>
 
-                    <!-- si le livre est disponible, pouvoir l'emprunter -->
-                    <form action="borrow.php" method="POST">
-                        <input type="hidden" name="borrow" value="<?php echo $result->id ?>" />
-                        <input type="submit" value="Emprunter" />
-                    </form>
+                    <!-- si l'utilisateurice a moins de 3 ouvrages en cours d'emprunt -->
+                    <?php
+                    $email = $_SESSION['user']->email;
+
+                    $search = $pdo->prepare('SELECT * FROM borrowed_books WHERE email = :email');
+                    $search->execute([
+                        'email' => $email
+                    ]);
+                    $results = $search->fetchAll();
+
+                    $count = count($results);
+                    if ($count < 3) :
+                    ?>
+                        <!-- si le livre est disponible, pouvoir l'emprunter -->
+                        <form action="borrow.php" method="POST">
+                            <input type="hidden" name="borrow" value="<?php echo $result->id ?>" />
+                            <input type="submit" value="Emprunter" />
+                        </form>
+                    <?php else : ?>
+                        <p><strong>Vous avez déjà 3 ouvrages en cours d'emprunt</strong></p>
+                    <?php endif; ?>
+
                 </article>
             <?php endforeach; ?>
 
@@ -135,11 +152,28 @@ if ($_SESSION['user']) :
                         echo  $pages; ?>
                     </p>
 
-                    <!-- si le livre est disponible, pouvoir l'emprunter -->
-                    <form action="borrow.php" method="POST">
-                        <input type="hidden" name="borrow" value="<?php echo $all_book->id ?>" />
-                        <input type="submit" value="Emprunter" />
-                    </form>
+                    <!-- si l'utilisateurice a moins de 3 ouvrages en cours d'emprunt -->
+                    <?php
+                    $email = $_SESSION['user']->email;
+
+                    $search = $pdo->prepare('SELECT * FROM borrowed_books WHERE email = :email');
+                    $search->execute([
+                        'email' => $email
+                    ]);
+                    $results = $search->fetchAll();
+
+                    $count = count($results);
+                    if ($count < 3) :
+                    ?>
+                        <!-- si le livre est disponible, pouvoir l'emprunter -->
+                        <form action="borrow.php" method="POST">
+                            <input type="hidden" name="borrow" value="<?php echo $all_book->id ?>" />
+                            <input type="submit" value="Emprunter" />
+                        </form>
+                    <?php else : ?>
+                        <p>Vous avez déjà 3 ouvrages en cours d'emprunt</p>
+                    <?php endif; ?>
+
                 </article>
 
             <?php endif; ?>

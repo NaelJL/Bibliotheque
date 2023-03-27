@@ -79,12 +79,18 @@ if ($_SESSION['user']) :
                     // dans la table accounts
                     updateField('email', $newEmail);
 
-                    // récupérer l'ancien email pour faire le lien avec la table books et la mettre à jour aussi
+                    // récupérer l'ancien email pour faire le lien avec les tables books et borrowed_books et les mettre à jour aussi
                     $user = $_SESSION['user'];
                     $oldEmail = $user->email;
 
                     $query = $pdo->prepare("UPDATE books SET email = :newEmail WHERE email = :oldEmail");
                     $query->execute([
+                        'newEmail' => $newEmail,
+                        'oldEmail' => $oldEmail
+                    ]);
+
+                    $update = $pdo->prepare('UPDATE borrowed_books SET email = :newEmail WHERE email = :oldEmail');
+                    $update->execute([
                         'newEmail' => $newEmail,
                         'oldEmail' => $oldEmail
                     ]);
