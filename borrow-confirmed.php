@@ -2,6 +2,12 @@
 session_start();
 require 'head.php';
 require 'cookie_handler.php';
+
+require './vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 ?>
 
 <!-- Si l'utilisateurice est connecté-e et le cookie time valide -->
@@ -41,6 +47,49 @@ if ($_SESSION['user']) :
                 'book_id' => $id_book,
                 'email' => $email
             ]);
+
+            // récupérer l'email de la personne qui prête grâce à l'id
+            $email = $pdo->prepare('SELECT email FROM books WHERE id = :id');
+            $email->execute([
+                'id' => $id_book
+            ]);
+            $email_ok = $email->fetch();
+
+            // envoyer un email à la personne qui prête le livre
+            $mail = new PHPMailer(true);
+
+            try {
+                // configuration du serveur
+                $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+                $mail->isSMTP();
+                $mail->Host       = 'localhost';
+                $mail->SMTPAuth   = false;
+                // si true // $mail->Username   = '@.com'; // $mail->Password   = '';
+                // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                // $mail->Port       = 587;
+
+                // configuration envoyeur envoyé
+                $mail->setFrom('blibliothequeparticipative@gmail.com', 'NJL');
+                $mail->addAddress($email_ok);
+
+                // configuration du message
+                $mail->isHTML(true);
+                $mail->Subject = 'Un de vos livres a été emprunté';
+                $mail->Body    = "
+                        <html>
+                            <body>
+                                <h2>Que faire maintenant ?</h2>
+                                <p>
+                                    Attendez que la personne qui vous a emprunté le livre vous contacte par email.
+                                </p>
+                            </body>
+                        </html>
+                        ";
+
+                $mail->send();
+            } catch (Exception $e) {
+                echo $mail->ErrorInfo;
+            }
 
             // supprimer la session id-book pour ne pas multiplier l'emprunt
             unset($_SESSION['id-book']);

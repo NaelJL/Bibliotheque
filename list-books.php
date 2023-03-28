@@ -93,16 +93,22 @@ if ($_SESSION['user']) :
                     $search->execute([
                         'email' => $email
                     ]);
-                    $results = $search->fetchAll();
+                    $search_result = $search->fetchAll();
 
-                    $count = count($results);
+                    $count = count($search_result);
                     if ($count < 3) :
+
+                        // si l'utilisateurice n'est pas la personne qui propose le livre au prêt
+                        if ($email !== $result->email) :
                     ?>
-                        <!-- si le livre est disponible, pouvoir l'emprunter -->
-                        <form action="borrow.php" method="POST">
-                            <input type="hidden" name="borrow" value="<?php echo $result->id ?>" />
-                            <input type="submit" value="Emprunter" />
-                        </form>
+                            <!-- si le livre est disponible, pouvoir l'emprunter -->
+                            <form action="borrow.php" method="POST">
+                                <input type="hidden" name="borrow" value="<?php echo $result->id ?>" />
+                                <input type="submit" value="Emprunter" />
+                            </form>
+                        <?php else : ?>
+                            <p><strong>Livre vous appartenant</strong></p>
+                        <?php endif; ?>
                     <?php else : ?>
                         <p><strong>Vous avez déjà 3 ouvrages en cours d'emprunt</strong></p>
                     <?php endif; ?>
@@ -164,12 +170,18 @@ if ($_SESSION['user']) :
 
                     $count = count($results);
                     if ($count < 3) :
+
+                        // si l'utilisateurice n'est pas la personne qui propose le livre au prêt
+                        if ($email !== $all_book->email) :
                     ?>
-                        <!-- si le livre est disponible, pouvoir l'emprunter -->
-                        <form action="borrow.php" method="POST">
-                            <input type="hidden" name="borrow" value="<?php echo $all_book->id ?>" />
-                            <input type="submit" value="Emprunter" />
-                        </form>
+                            <!-- si le livre est disponible, pouvoir l'emprunter -->
+                            <form action="borrow.php" method="POST">
+                                <input type="hidden" name="borrow" value="<?php echo $all_book->id ?>" />
+                                <input type="submit" value="Emprunter" />
+                            </form>
+                        <?php else : ?>
+                            <p><strong>Ce livre vous appartient</strong></p>
+                        <?php endif; ?>
                     <?php else : ?>
                         <p>Vous avez déjà 3 ouvrages en cours d'emprunt</p>
                     <?php endif; ?>

@@ -94,17 +94,25 @@ if ($_SESSION['user']) :
                     <p>Titre : <strong><?php echo $all_book->title ?></strong></p>
                     <p>Author : <strong><?php echo $all_book->author ?></strong></p>
 
-                    <!-- Rendre le livre indisponible -->
+                    <!-- Si le livre n'est pas emprunté : -->
                     <?php if ($all_book->available == 1) : ?>
+
+                        <!-- Pouvoir rendre le livre indisponible -->
                         <form action="available.php" method="POST">
                             <input type="hidden" name="non-available" value="<?php echo $all_book->id ?>" />
-                            <input type="submit" value="Indiquer comme indisponible" />
+                            <input type="submit" value="Indiquer comme indisponible" style="margin: 5px auto" />
                         </form>
 
-                        <!-- Rendre le livre disponible -->
+                        <!-- Pouvoir supprimer le livre -->
+                        <form action="delete-book.php" method="POST">
+                            <input type="hidden" name="delete" value="<?php echo $all_book->id ?>" />
+                            <input type="submit" value="Supprimer le livre" style="margin: 5px auto" />
+                        </form>
+
+                        <!-- Pouvoir rendre le livre disponible -->
                     <?php elseif ($all_book->available == 0) : ?>
 
-                        <!-- Vérifier que le livre n'est pas indisponible parce qu'il est emprunté -->
+                        <!-- Vérifier que le livre n'est pas emprunté -->
                         <?php
                         $book_id = $all_book->id;
                         $borrow = $pdo->prepare('SELECT * FROM borrowed_books WHERE book_id = :book_id');
@@ -115,18 +123,26 @@ if ($_SESSION['user']) :
 
                         if ($is_borrowed) :
                         ?>
-
+                            <!-- S'il est emprunté, ne rien pouvoir faire -->
                             <p><strong><em>Livre emprunté</em></strong></p>
 
                         <?php else : ?>
+
+                            <!-- S'il n'est pas emprunté, pouvoir le rendre disponible ou le supprimer -->
                             <p><strong><em>Livre non disponible</em></strong></p>
                             <form action="available.php" method="POST">
                                 <input type="hidden" name="available" value="<?php echo $all_book->id ?>" />
-                                <input type="submit" value="Indiquer comme disponible" />
+                                <input type="submit" value="Indiquer comme disponible" style="margin: 5px auto" />
+                            </form>
+
+                            <form action="delete-book.php" method="POST">
+                                <input type="hidden" name="delete" value="<?php echo $all_book->id ?>" />
+                                <input type="submit" value="Supprimer le livre" style="margin: 5px auto" />
                             </form>
                         <?php endif; ?>
 
                     <?php endif; ?>
+
                 </article>
 
             <?php endforeach; ?>

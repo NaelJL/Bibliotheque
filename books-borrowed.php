@@ -27,7 +27,7 @@ if ($_SESSION['user']) :
     $email = $_SESSION['user']->email;
 
     // afficher sur la page les livres empruntés
-    $show = $pdo->prepare('SELECT books.title, books.email, borrowed_books.id, borrowed_books.date_borrowed, borrowed_books.date_return, borrowed_books.extension FROM books, borrowed_books WHERE books.id = borrowed_books.book_id AND borrowed_books.email = :email ORDER BY books.email');
+    $show = $pdo->prepare('SELECT books.title, books.email, borrowed_books.id, borrowed_books.date_borrowed, borrowed_books.date_return, borrowed_books.extension, borrowed_books.book_id FROM books, borrowed_books WHERE books.id = borrowed_books.book_id AND borrowed_books.email = :email ORDER BY books.email');
     $show->execute([
         'email' => $email
     ]);
@@ -60,7 +60,7 @@ if ($_SESSION['user']) :
 
                     <?php if ($book->extension == 0) : ?>
                         <form action="extension.php" method="POST">
-                            <input type="hidden" name="extension" value="<?php echo $book->id ?>" />
+                            <input type="hidden" name="extension" value="<?php echo $book->book_id ?>" />
                             <input type="submit" value="Prolonger de 3 semaines" />
                         </form>
                     <?php elseif ($book->extension == 1) : ?>

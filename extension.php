@@ -2,6 +2,12 @@
 session_start();
 require 'head.php';
 require 'cookie_handler.php';
+
+require './vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 ?>
 
 <!-- Si l'utilisateurice est connecté-e et le cookie time valide -->
@@ -29,9 +35,9 @@ if ($_SESSION['user']) :
                     $id = trim(htmlspecialchars($_POST['extension']));
 
                     // aller chercher la date de retour initiale
-                    $search = $pdo->prepare('SELECT date_return FROM borrowed_books WHERE id = :id');
+                    $search = $pdo->prepare('SELECT date_return FROM borrowed_books WHERE book_id = :book_id');
                     $search->execute([
-                        'id' => $id
+                        'book_id' => $book_id
                     ]);
                     $date_return = $search->fetch();
 
@@ -39,11 +45,56 @@ if ($_SESSION['user']) :
                     $date_return_update = date('Y-m-d', strtotime('+3 weeks', strtotime($date_return_format)));
 
                     // mettre à jour la table borrowed_books : plus de prolongement possible, 3 semaines supplémentaires ajoutées
-                    $query = $pdo->prepare('UPDATE borrowed_books SET extension = 1, date_return = :date_return WHERE id = :id');
+                    $query = $pdo->prepare('UPDATE borrowed_books SET extension = 1, date_return = :date_return WHERE book_id = :book_id');
                     $query->execute([
-                        'id' => $id,
+                        'book_id' => $book_id,
                         'date_return' => $date_return_update
                     ]);
+
+                    // récupérer l'email de la personne qui prête grâce à l'id
+                    $email = $pdo->prepare('SELECT email FROM books WHERE id = :id');
+                    $email->execute([
+                        'id' => $book_id
+                    ]);
+                    $email_ok = $email->fetch();
+
+                    // envoyer un email à la personne qui prête le livre
+                    $mail = new PHPMailer(true);
+
+                    try {
+                        // configuration du serveur
+                        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+                        $mail->isSMTP();
+                        $mail->Host       = 'localhost';
+                        $mail->SMTPAuth   = false;
+                        // si true // $mail->Username   = '@.com'; // $mail->Password   = '';
+                        // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                        // $mail->Port       = 587;
+
+                        // configuration envoyeur envoyé
+                        $mail->setFrom('blibliothequeparticipative@gmail.com', 'NJL');
+                        $mail->addAddress($email_ok);
+
+                        // configuration du message
+                        $mail->isHTML(true);
+                        $mail->Subject = 'Un de vos livres a été prolongé';
+                        $mail->Body    = "
+                                <html>
+                                    <body>
+                                        <h2>Que faire maintenant ?</h2>
+                                        <p>
+                                            Vous pouvez vous connecter pour retrouver toutes les informations sur vos livres prêtés.
+                                        </p>
+                                    </body>
+                                </html>
+                                ";
+
+                        $mail->send();
+                    } catch (Exception $e) {
+                        echo $mail->ErrorInfo;
+                    }
+
+                    // retourner sur la page des livres en cours
                     Header('Location: my-current-books.php');
                 }
             } else {

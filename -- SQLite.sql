@@ -35,5 +35,3 @@
 --     book_id INTEGER NOT NULL,
 --     email TEXT NOT NULL
 -- )
-
-UPDATE books SET available = 1 WHERE id = 24

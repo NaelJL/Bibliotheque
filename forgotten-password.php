@@ -2,6 +2,12 @@
 session_start();
 require 'head.php';
 require 'cookie_handler.php';
+
+require './vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 ?>
 
 <nav>
@@ -71,27 +77,42 @@ try {
                     }
 
                     // envoyer l'email de modification de mot de passe
-                    // $header = 'MIME-Version: 1.0\r\n';
-                    // $header .= 'From:"Bibliotheque"<support-bibliotheque@protonmail.com>' . "\n";
-                    // $header .= 'Content-Type:text/html; charset="uft-8"' . "\n";
-                    // $header .= 'Content-Transfer-Encoding: 8bit';
+                    $mail = new PHPMailer(true);
 
-                    // $message = "
-                    // <html>
-                    //     <body>
-                    //         <h2>Pour vous connecter!</h2>
-                    //          <p>Votre code de récupération : $recupCode
-                    //         <p>Vous devez simplement suivre 
-                    //             <a href='http://localhost:8888/Bibliotheque/change-forgotten-password.php?email= . urlencode($recupEmail)'>
-                    //             ce lien
-                    //             </a>
-                    //         pour pouvoir modifier votre mot de passe.
-                    //         </p>
-                    //     </body>
-                    // </html>
-                    // ";
+                    try {
+                        // configuration du serveur
+                        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+                        $mail->isSMTP();
+                        $mail->Host       = 'localhost';
+                        $mail->SMTPAuth   = false;
+                        // si true // $mail->Username   = '@.com'; // $mail->Password   = '';
+                        // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                        // $mail->Port       = 587;
 
-                    // mail($recupEmail, 'Mot de passe oublié', $message, $header);
+                        // configuration envoyeur envoyé
+                        $mail->setFrom('blibliothequeparticipative@gmail.com', 'NJL');
+                        $mail->addAddress($email);
+
+                        // configuration du message
+                        $mail->isHTML(true);
+                        $mail->Subject = 'Mot de passe oublié';
+                        $mail->Body    = "
+                        <html>
+                            <body>
+                                <h2>Pour vous connecter!</h2>
+                                <p>Votre code de récupération : $recupCode
+                                <p>Vous devez simplement suivre 
+                                    <a href='http://localhost:8888/Bibliotheque/change-forgotten-password.php?email= . urlencode($recupEmail)'>ce lien</a>
+                                    pour pouvoir modifier votre mot de passe.
+                                </p>
+                            </body>
+                        </html>
+                        ";
+
+                        $mail->send();
+                    } catch (Exception $e) {
+                        echo $mail->ErrorInfo;
+                    }
                 }
                 echo "<p class='success'>Si l'adresse email est enregistrée, vous allez recevoir un message.</p>";
 
