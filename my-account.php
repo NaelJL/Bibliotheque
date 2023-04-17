@@ -10,6 +10,9 @@ require 'cookie_handler.php';
 if ($_SESSION['user']) :
 ?>
     <nav>
+        <?php if ($_SESSION['user']->admin == 1) : ?>
+            <p><a href="admin.php">Compte admin</a></p>
+        <?php endif; ?>
         <p><a href="logout.php">Me déconnecter</a></p>
     </nav>
 

@@ -96,14 +96,15 @@ try {
                             $confirmationKey = mt_rand(100000000, 999999999);
                             $confirmedAccount = 0;
 
-                            $query = $pdo->prepare('INSERT INTO accounts (name, surname, email, password, confirmationKey, confirmedAccount) VALUES (:name, :surname, :email, :password, :confirmationKey, :confirmedAccount)');
+                            $query = $pdo->prepare('INSERT INTO accounts (name, surname, email, password, confirmationKey, confirmedAccount, admin) VALUES (:name, :surname, :email, :password, :confirmationKey, :confirmedAccount, :admin)');
                             $query->execute([
                                 'name' => $name,
                                 'surname' => $surname,
                                 'email' => $email,
                                 'password' => $password,
                                 'confirmationKey' => $confirmationKey,
-                                'confirmedAccount' => $confirmedAccount
+                                'confirmedAccount' => $confirmedAccount,
+                                'admin' => 0
                             ]);
                             echo '<p class="success"> Votre compte a bien été enregistré<br />Vous devez l\'activer par mail pour pouvoir vous connecter</p>';
 
