@@ -65,7 +65,7 @@ try {
                 // si la captcha est correcte
                 if ($_POST['captcha'] == $_SESSION['captcha']) {
 
-                    // protéger des injections html
+                    // protéger des injections
                     $name = trim(htmlspecialchars($_POST['name']));
                     $surname = trim(htmlspecialchars($_POST['surname']));
                     if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {

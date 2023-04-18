@@ -116,20 +116,35 @@ if ($_SESSION['user']) :
                         $email = $_SESSION['user']->email;
                         if ($email) {
 
-                            // création d'une ligne dans la table books
-                            $query = $pdo->prepare('INSERT INTO books (title, author, translator, collection, edition, publication, pages, email, available) VALUES (:title, :author, :translator, :collection, :edition, :publication, :pages, :email, :available)');
-                            $query->execute([
-                                'title' => $title,
-                                'author' => $author,
-                                'translator' => $translator,
-                                'collection' => $collection,
-                                'edition' => $edition,
-                                'publication' => $publication_ok,
-                                'pages' => $pages_ok,
-                                'email' => $email,
-                                'available' => $available_ok
+                            // aller chercher l'id de la personne grâce à l'email de session
+                            $search = $pdo->prepare('SELECT * FROM accounts WHERE email = :email');
+                            $search->execute([
+                                'email' => $email
                             ]);
-                            echo "<p class='success'>Le livre a bien été enregistré</p>";
+
+                            $result = $search->fetch();
+
+                            if ($result) {
+                                $id_person = $result->id;
+
+                                // création d'une ligne dans la table books
+                                $query = $pdo->prepare('INSERT INTO books (title, author, translator, collection, edition, publication, pages, available, id_person) VALUES (:title, :author, :translator, :collection, :edition, :publication, :pages, :available, :id_person)');
+                                $query->execute([
+                                    'title' => $title,
+                                    'author' => $author,
+                                    'translator' => $translator,
+                                    'collection' => $collection,
+                                    'edition' => $edition,
+                                    'publication' => $publication_ok,
+                                    'pages' => $pages_ok,
+                                    'available' => $available_ok,
+                                    'id_person' => $id_person
+                                ]);
+                                echo "<p class='success'>Le livre a bien été enregistré</p>";
+                            } else {
+                                echo "<p class='error'>Problème avec l'email du compte</p>";
+                                exit;
+                            }
                         } else {
                             echo "<p class='error'>Problème avec l'email du compte</p>";
                             exit;

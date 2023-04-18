@@ -29,11 +29,11 @@ if ($_SESSION['user']) :
         <?php
 
         // afficher sur la page les livres prêtés en cours
-        $email = $_SESSION['user']->email;
+        $user_id = $_SESSION['user']->id;
 
-        $show = $pdo->prepare('SELECT books.title, borrowed_books.id, borrowed_books.date_borrowed, borrowed_books.date_return, borrowed_books.extension, borrowed_books.email FROM books, borrowed_books WHERE books.id = borrowed_books.book_id AND books.email = :email');
+        $show = $pdo->prepare('SELECT books.title, borrowed_books.id, borrowed_books.date_borrowed, borrowed_books.date_return, borrowed_books.extension, borrowed_books.id_person_borrowing FROM books, borrowed_books WHERE books.id = borrowed_books.book_id AND books.id_person = :user_id');
         $show->execute([
-            'email' => $email
+            'user_id' => $user_id
         ]);
         $books = $show->fetchAll();
 
@@ -57,7 +57,21 @@ if ($_SESSION['user']) :
                     <p>Titre : <strong><?php echo $book->title ?></strong></p>
                     <p>Date d'emprunt : <strong><?php echo $date_borrowed_ok; ?></strong></p>
                     <p>Date de retour : <strong><?php echo $date_return_ok; ?></strong></p>
-                    <p>Personne qui emprunte : <strong><?php echo $book->email; ?></strong></p>
+
+                    <?php
+                    // Indiquer l'email de la personne qui emprunte
+                    $id_person_borrowing = $book->id_person_borrowing;
+                    $person_borrowing = $pdo->prepare('SELECT email FROM accounts WHERE id = :id_person_borrowing');
+                    $person_borrowing->execute([
+                        'id_person_borrowing' => $id_person_borrowing
+                    ]);
+                    $person_borrowing_profile = $person_borrowing->fetch();
+
+                    if ($person_borrowing_profile) :
+                        $email = $person_borrowing_profile->email;
+                    ?>
+                        <p>Personne qui emprunte : <strong><?php echo $email; ?></strong></p>
+                    <?php endif; ?>
 
                     <!-- Indiquer le livre comme étant rendu -->
                     <form action="returned-book.php" method="POST">
@@ -81,9 +95,9 @@ if ($_SESSION['user']) :
     <section>
         <?php
         // afficher sur la page les livres proposés au prêt
-        $all = $pdo->prepare('SELECT * FROM books WHERE email = :email');
+        $all = $pdo->prepare('SELECT * FROM books WHERE id_person = :user_id');
         $all->execute([
-            'email' => $email
+            'user_id' => $user_id
         ]);
         $all_books = $all->fetchAll();
 
@@ -94,53 +108,54 @@ if ($_SESSION['user']) :
                     <p>Titre : <strong><?php echo $all_book->title ?></strong></p>
                     <p>Author : <strong><?php echo $all_book->author ?></strong></p>
 
-                    <!-- Si le livre n'est pas emprunté : -->
-                    <?php if ($all_book->available == 1) : ?>
+                    <!-- Un livre peut être available == 0 quand il est emprunté ou indisponible -->
+                    <!-- Vérifier si le livre est emprunté : -->
+                    <?php
+                    $book_id = $all_book->id;
+                    $borrow = $pdo->prepare('SELECT * FROM borrowed_books WHERE book_id = :book_id');
+                    $borrow->execute([
+                        'book_id' => $book_id
+                    ]);
+                    $is_borrowed = $borrow->fetch();
 
-                        <!-- Pouvoir rendre le livre indisponible -->
+                    if ($is_borrowed) :
+                    ?>
+                        <!-- S'il est bien emprunté, ne rien pouvoir faire -->
+                        <p><strong><em>Livre emprunté</em></strong></p>
+
+                    <?php
+                    // S'il n'est pas emprunté mais simplement indisponible
+                    elseif (!$is_borrowed && $all_book->available == 0) :
+                    ?>
+
+                        <!-- Pouvoir le rendre disponible -->
+                        <p><strong><em>Livre non disponible</em></strong></p>
+                        <form action="available.php" method="POST">
+                            <input type="hidden" name="available" value="<?php echo $all_book->id ?>" />
+                            <input type="submit" value="Indiquer comme disponible" style="margin: 5px auto" />
+                        </form>
+
+                    <?php
+                    // S'il n'est pas emprunté et disponible
+                    elseif (!$is_borrowed && $all_book->available == 1) :
+                    ?>
+                        <!-- Pouvoir le rendre indiponible -->
                         <form action="available.php" method="POST">
                             <input type="hidden" name="non-available" value="<?php echo $all_book->id ?>" />
                             <input type="submit" value="Indiquer comme indisponible" style="margin: 5px auto" />
                         </form>
 
-                        <!-- Pouvoir supprimer le livre -->
+                        <!-- Pouvoir le modifier -->
+                        <form action="modif-book.php" method="POST">
+                            <input type="hidden" name="modification" value="<?php echo $all_book->id ?>" />
+                            <input type="submit" value="Modifier le livre" style="margin: 5px auto" />
+                        </form>
+
+                        <!-- Pouvoir le supprimer -->
                         <form action="delete-book.php" method="POST">
                             <input type="hidden" name="delete" value="<?php echo $all_book->id ?>" />
                             <input type="submit" value="Supprimer le livre" style="margin: 5px auto" />
                         </form>
-
-                        <!-- Pouvoir rendre le livre disponible -->
-                    <?php elseif ($all_book->available == 0) : ?>
-
-                        <!-- Vérifier que le livre n'est pas emprunté -->
-                        <?php
-                        $book_id = $all_book->id;
-                        $borrow = $pdo->prepare('SELECT * FROM borrowed_books WHERE book_id = :book_id');
-                        $borrow->execute([
-                            'book_id' => $book_id
-                        ]);
-                        $is_borrowed = $borrow->fetch();
-
-                        if ($is_borrowed) :
-                        ?>
-                            <!-- S'il est emprunté, ne rien pouvoir faire -->
-                            <p><strong><em>Livre emprunté</em></strong></p>
-
-                        <?php else : ?>
-
-                            <!-- S'il n'est pas emprunté, pouvoir le rendre disponible ou le supprimer -->
-                            <p><strong><em>Livre non disponible</em></strong></p>
-                            <form action="available.php" method="POST">
-                                <input type="hidden" name="available" value="<?php echo $all_book->id ?>" />
-                                <input type="submit" value="Indiquer comme disponible" style="margin: 5px auto" />
-                            </form>
-
-                            <form action="delete-book.php" method="POST">
-                                <input type="hidden" name="delete" value="<?php echo $all_book->id ?>" />
-                                <input type="submit" value="Supprimer le livre" style="margin: 5px auto" />
-                            </form>
-                        <?php endif; ?>
-
                     <?php endif; ?>
 
                 </article>

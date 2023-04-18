@@ -27,13 +27,13 @@ if ($_SESSION['user']->admin == 1) :
     <?php
     // afficher sur la page tous les livres empruntés
     $show = $pdo->query('SELECT 
-        books.title, books.author, books.email as "lender_email", 
+        books.title, books.author, books.id_person as "lender_id", 
         borrowed_books.id, borrowed_books.date_borrowed, 
         borrowed_books.date_return, borrowed_books.extension, 
-        borrowed_books.book_id, borrowed_books.email as "borrower_email" 
+        borrowed_books.book_id, borrowed_books.id_person_borrowing as "borrower_id"
         FROM books, borrowed_books 
         WHERE books.id = borrowed_books.book_id 
-        ORDER BY borrower_email');
+        ORDER BY borrower_id');
     $borrowed_books = $show->fetchAll();
     ?>
 
@@ -58,8 +58,31 @@ if ($_SESSION['user']->admin == 1) :
                 <article class="book-card">
                     <p>Titre : <strong><?php echo $book->title ?></strong></p>
                     <p>Auteur-ice : <strong><?php echo $book->author ?></strong></p>
-                    <p>Personne qui prête : <strong><?php echo $book->lender_email ?></strong></p>
-                    <p>Personne qui emprunte : <strong><?php echo $book->borrower_email ?></strong></p>
+
+                    <?php
+                    // aller chercher l'email de la personne qui prête
+                    $lender_id = $book->lender_id;
+                    $lender = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
+                    $lender->execute([
+                        'id' => $lender_id
+                    ]);
+                    $lender_profile = $lender->fetch();
+                    $lender_email = $lender_profile->email;
+                    ?>
+                    <p>Personne qui prête : <strong><?php echo $lender_email ?></strong></p>
+
+                    <?php
+                    // aller chercher l'email de la personne qui emprunte
+                    $borrower_id_result = $book->borrower_id;
+                    $borrower = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
+                    $borrower->execute([
+                        'email' => $borrower_id_result
+                    ]);
+                    $borrower_pofile = $borrower->fetch();
+                    $borrower_email = $borrower_pofile->email;
+                    ?>
+                    <p>Personne qui emprunte : <strong><?php echo $borrower_email ?></strong></p>
+
                     <p>Date d'emprunt : <strong><?php echo $date_borrowed_ok; ?></strong></p>
                     <p>Date de retour : <strong><?php echo $date_return_ok; ?></strong></p>
 

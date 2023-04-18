@@ -89,9 +89,19 @@ if ($_SESSION['user']) :
                     <?php
                     $email = $_SESSION['user']->email;
 
-                    $search = $pdo->prepare('SELECT * FROM borrowed_books WHERE email = :email');
-                    $search->execute([
+                    $person = $pdo->prepare('SELECT * FROM accounts WHERE email = :email');
+                    $person->execute([
                         'email' => $email
+                    ]);
+                    $person_profile = $person->fetch();
+                    if ($person_profile) {
+                        $id_person = $person_profile->id;
+                        $email_person = $person_profile->email;
+                    }
+
+                    $search = $pdo->prepare('SELECT * FROM borrowed_books WHERE id_person = :id');
+                    $search->execute([
+                        'id_person' => $id
                     ]);
                     $search_result = $search->fetchAll();
 
@@ -99,7 +109,7 @@ if ($_SESSION['user']) :
                     if ($count < 3) :
 
                         // si l'utilisateurice n'est pas la personne qui propose le livre au prêt
-                        if ($email !== $result->email) :
+                        if ($id_person !== $result->id_person) :
                     ?>
                             <!-- si le livre est disponible, pouvoir l'emprunter -->
                             <form action="borrow.php" method="POST">
@@ -162,9 +172,19 @@ if ($_SESSION['user']) :
                     <?php
                     $email = $_SESSION['user']->email;
 
-                    $search = $pdo->prepare('SELECT * FROM borrowed_books WHERE email = :email');
-                    $search->execute([
+                    $person = $pdo->prepare('SELECT * FROM accounts WHERE email = :email');
+                    $person->execute([
                         'email' => $email
+                    ]);
+                    $person_profile = $person->fetch();
+                    if ($person_profile) {
+                        $id_person = $person_profile->id;
+                        $email_person = $person_profile->email;
+                    }
+
+                    $search = $pdo->prepare('SELECT * FROM borrowed_books WHERE id_person_borrowing = :id');
+                    $search->execute([
+                        'id' => $id_person
                     ]);
                     $results = $search->fetchAll();
 
@@ -172,7 +192,7 @@ if ($_SESSION['user']) :
                     if ($count < 3) :
 
                         // si l'utilisateurice n'est pas la personne qui propose le livre au prêt
-                        if ($email !== $all_book->email) :
+                        if ($id_person !== $all_book->id_person) :
                     ?>
                             <!-- si le livre est disponible, pouvoir l'emprunter -->
                             <form action="borrow.php" method="POST">
@@ -193,7 +213,7 @@ if ($_SESSION['user']) :
 
         <!-- Lister les livres indisponibles (déjà empruntés) -->
         <?php
-        $query = $pdo->prepare('SELECT books.id, books.title, books.author, books.translator, books.collection, books.edition, books.publication, books.pages, books.email, books.available, borrowed_books.date_return FROM books, borrowed_books WHERE books.id = borrowed_books.book_id');
+        $query = $pdo->prepare('SELECT books.id, books.title, books.author, books.translator, books.collection, books.edition, books.publication, books.pages, books.available, books.id_person, borrowed_books.date_return FROM books, borrowed_books WHERE books.id = borrowed_books.book_id');
         $query->execute();
         $books = $query->fetchAll();
 

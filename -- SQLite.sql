@@ -7,6 +7,7 @@
 -- )
 -- ALTER TABLE accounts ADD confirmationKey TEXT NOT NULL
 -- ALTER TABLE accounts ADD confirmedAccount INT NOT NULL
+-- ALTER TABLE accounts ADD admin INT NOT NULL
 
 -- CREATE TABLE books (
 --     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,8 +19,8 @@
 --     publication DATE,
 --     pages INTEGER
 -- )
--- ALTER TABLE books ADD email TEXT NOT NULL
 -- ALTER TABLE books ADD available INTEGER NOT NULL
+-- ALTER TABLE books ADD id_person INTEGER NOT NULL
 
 -- CREATE TABLE recupCode (
 --     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,5 +34,5 @@
 --     date_return TEXT NOT NULL,
 --     extension INTEGER NOT NULL,
 --     book_id INTEGER NOT NULL,
---     email TEXT NOT NULL
 -- )
+-- ALTER TABLE borrowed_books ADD id_person_borrowing INTEGER NOT NULL

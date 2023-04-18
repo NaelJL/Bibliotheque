@@ -26,12 +26,23 @@ if ($_SESSION['user']) :
 
     $email = $_SESSION['user']->email;
 
-    // afficher sur la page les livres empruntés
-    $show = $pdo->prepare('SELECT books.title, books.email, borrowed_books.id, borrowed_books.date_borrowed, borrowed_books.date_return, borrowed_books.extension, borrowed_books.book_id FROM books, borrowed_books WHERE books.id = borrowed_books.book_id AND borrowed_books.email = :email ORDER BY books.email');
-    $show->execute([
+    // aller chercher l'id de la personne grâce à son email
+    $person = $pdo->prepare('SELECT * FROM accounts WHERE email = :email');
+    $person->execute([
         'email' => $email
     ]);
-    $borrowed_books = $show->fetchAll();
+    $person_profile = $person->fetch();
+
+    if ($person_profile) {
+        $id_person_borrowing = $person_profile->id;
+
+        // afficher sur la page les livres empruntés
+        $show = $pdo->prepare('SELECT books.title, books.id_person, borrowed_books.id, borrowed_books.date_borrowed, borrowed_books.date_return, borrowed_books.extension, borrowed_books.book_id FROM books, borrowed_books WHERE books.id = borrowed_books.book_id AND borrowed_books.id_person_borrowing = :id_person_borrowing ORDER BY books.id_person');
+        $show->execute([
+            'id_person_borrowing' => $id_person_borrowing
+        ]);
+        $borrowed_books = $show->fetchAll();
+    }
     ?>
 
     <section>
@@ -54,7 +65,19 @@ if ($_SESSION['user']) :
 
                 <article class="book-card">
                     <p>Titre : <strong><?php echo $book->title ?></strong></p>
-                    <p>Email de la personne à contacter : <strong><?php echo $book->email ?></strong></p>
+
+                    <?php
+                    // récupérer l'email de la personne à contacter
+                    $id = $book->id_person;
+                    $person = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
+                    $person->execute([
+                        'id' => $id
+                    ]);
+                    $person_profile = $person->fetch();
+                    $person_email = $person_profile->email;
+                    ?>
+                    <p>Email de la personne à contacter : <strong><?php echo $person_email ?></strong></p>
+
                     <p>Date d'emprunt : <strong><?php echo $date_borrowed_ok; ?></strong></p>
                     <p>Date de retour : <strong><?php echo $date_return_ok; ?></strong></p>
 

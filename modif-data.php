@@ -75,25 +75,7 @@ if ($_SESSION['user']) :
             if (!empty($_POST['email'])) {
                 if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
                     $newEmail = $_POST['email'];
-
-                    // dans la table accounts
                     updateField('email', $newEmail);
-
-                    // récupérer l'ancien email pour faire le lien avec les tables books et borrowed_books et les mettre à jour aussi
-                    $user = $_SESSION['user'];
-                    $oldEmail = $user->email;
-
-                    $query = $pdo->prepare("UPDATE books SET email = :newEmail WHERE email = :oldEmail");
-                    $query->execute([
-                        'newEmail' => $newEmail,
-                        'oldEmail' => $oldEmail
-                    ]);
-
-                    $update = $pdo->prepare('UPDATE borrowed_books SET email = :newEmail WHERE email = :oldEmail');
-                    $update->execute([
-                        'newEmail' => $newEmail,
-                        'oldEmail' => $oldEmail
-                    ]);
 
                     // mettre à jour dans la session en cours
                     $_SESSION['user']->email = $newEmail;

@@ -30,9 +30,9 @@ if ($_SESSION['user']) :
         if (isset($_POST['extension'])) {
             if (!empty($_POST['extension'])) {
 
-                // vérifier que la variable contient un caractère et la convertir en nombre
-                if (strlen($_POST['extension']) == 1) {
-                    $id = trim(htmlspecialchars($_POST['extension']));
+                // vérifier que la variable contient moins de 3 caractères
+                if (strlen($_POST['extension']) <= 3) {
+                    $book_id = trim(htmlspecialchars($_POST['extension']));
 
                     // aller chercher la date de retour initiale
                     $search = $pdo->prepare('SELECT date_return FROM borrowed_books WHERE book_id = :book_id');
@@ -52,50 +52,58 @@ if ($_SESSION['user']) :
                     ]);
 
                     // récupérer l'email de la personne qui prête grâce à l'id
-                    $email = $pdo->prepare('SELECT email FROM books WHERE id = :id');
-                    $email->execute([
-                        'id' => $book_id
-                    ]);
-                    $email_ok = $email->fetch();
+                    // $id = $pdo->prepare('SELECT id_person FROM books WHERE id = :book_id');
+                    // $id->execute([
+                    //     'id' => $book_id
+                    // ]);
+                    // $id_result = $id->fetch();
+                    // $id_ok = $id_result->id_person;
+
+                    // $email = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
+                    // $email->execute([
+                    //     'id' => $id_ok
+                    // ]);
+                    // $email_result = $email->fetch();
+                    // $email_ok = $email_result->email;
 
                     // envoyer un email à la personne qui prête le livre
-                    $mail = new PHPMailer(true);
+                    // $mail = new PHPMailer(true);
 
-                    try {
-                        // configuration du serveur
-                        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-                        $mail->isSMTP();
-                        $mail->Host       = 'localhost';
-                        $mail->SMTPAuth   = false;
-                        // si true // $mail->Username   = '@.com'; // $mail->Password   = '';
-                        // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                        // $mail->Port       = 587;
+                    // try {
+                    //     // configuration du serveur
+                    //     $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+                    //     $mail->isSMTP();
+                    //     $mail->Host       = 'localhost';
+                    //     $mail->SMTPAuth   = false;
+                    //     // si true // $mail->Username   = '@.com'; // $mail->Password   = '';
+                    //     // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                    //     // $mail->Port       = 587;
 
-                        // configuration envoyeur envoyé
-                        $mail->setFrom('blibliothequeparticipative@gmail.com', 'NJL');
-                        $mail->addAddress($email_ok);
+                    //     // configuration envoyeur envoyé
+                    //     $mail->setFrom('blibliothequeparticipative@gmail.com', 'NJL');
+                    //     $mail->addAddress($email_ok);
 
-                        // configuration du message
-                        $mail->isHTML(true);
-                        $mail->Subject = 'Un de vos livres a été prolongé';
-                        $mail->Body    = "
-                                <html>
-                                    <body>
-                                        <h2>Que faire maintenant ?</h2>
-                                        <p>
-                                            Vous pouvez vous connecter pour retrouver toutes les informations sur vos livres prêtés.
-                                        </p>
-                                    </body>
-                                </html>
-                                ";
+                    //     // configuration du message
+                    //     $mail->isHTML(true);
+                    //     $mail->Subject = 'Un de vos livres a été prolongé';
+                    //     $mail->Body    = "
+                    //             <html>
+                    //                 <body>
+                    //                     <h2>Que faire maintenant ?</h2>
+                    //                     <p>
+                    //                         Vous pouvez vous connecter pour retrouver toutes les informations sur vos livres prêtés.
+                    //                     </p>
+                    //                 </body>
+                    //             </html>
+                    //             ";
 
-                        $mail->send();
-                    } catch (Exception $e) {
-                        echo $mail->ErrorInfo;
-                    }
+                    //     $mail->send();
+                    // } catch (Exception $e) {
+                    //     echo $mail->ErrorInfo;
+                    // }
 
                     // retourner sur la page des livres en cours
-                    Header('Location: my-current-books.php');
+                    Header('location:books-borrowed.php');
                 }
             } else {
                 echo "<p class='error'>Problème avec le prolongement</p>";

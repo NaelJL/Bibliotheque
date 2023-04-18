@@ -17,79 +17,51 @@ if ($_SESSION['user']->admin == 1) :
 
     $person_email = $_SESSION['old-email-modif'];
 
-    // fonction pour les mises à jour
-    function updateField($field, $value)
+    // fonction générale pour les mises à jour des éléments
+    function updateField($type, $post, $field)
     {
+        global $max_length;
         global $pdo;
         global $person_email;
 
-        $query = $pdo->prepare("UPDATE accounts SET $field = :value WHERE email = :email");
-        $query->execute([
-            'value' => $value,
-            'email' => $person_email
-        ]);
+        if (isset($_POST[$post]) && strlen($_POST[$post]) < $max_length) {
+            $value = trim(htmlspecialchars($_POST[$post]));
 
-        // supprimer la variable qui stockait l'email
-        unset($_SESSION['old-email-modif']);
-        // revenir sur la page avec un message de réussite
-        Header('location:admin-modif-data.php?message=Validation+successful');
-    }
+            $query = $pdo->prepare("UPDATE accounts SET $field = :value WHERE email = :email");
 
-    // modification de l'email
-    if (isset($_POST['newEmail'])) {
-        if (!empty($_POST['newEmail'])) {
-            if (strlen($_POST['newEmail']) < $max_length) {
-                if (filter_var($_POST['newEmail'], FILTER_VALIDATE_EMAIL)) {
-                    $newEmail = $_POST['newEmail'];
-                    updateField('email', $newEmail);
+            if ($type == "number") {
+                $numeric_value = filter_var($value, FILTER_VALIDATE_INT);
+                if ($numeric_value === false) {
+                    echo "<p class='error'>Erreur</p>";
+                    return;
+                } else {
+                    $value = $numeric_value;
+                }
+            } elseif ($type == "email") {
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                    echo "<p class='error'>Erreur</p>";
+                    return;
                 }
             }
+
+            $query->execute([
+                'value' => $value,
+                'email' => $person_email
+            ]);
+
+            // supprimer la variable qui stockait l'email
+            unset($_SESSION['old-email-modif']);
+            // revenir sur la page avec un message de réussite
+            Header('location:admin-modif-data.php?message=Validation+successful');
         }
     }
 
-    // modification du prénom
-    if (isset($_POST['newName'])) {
-        if (!empty($_POST['newName'])) {
-            if (strlen($_POST['newName']) < $max_length) {
-                $newName = trim(htmlspecialchars($_POST['newName']));
-                updateField('name', $newName);
-            }
-        }
-    }
-
-    // modification du nom de famille
-    if (isset($_POST['newSurname'])) {
-        if (!empty($_POST['newSurname'])) {
-            if (strlen($_POST['newSurname']) < $max_length) {
-                $newSurname = trim(htmlspecialchars($_POST['newSurname']));
-                updateField('surname', $newSurname);
-            }
-        }
-    }
-
-    // activer ou désactiver le compte
-    if (isset($_POST['confirmation'])) {
-        $confirmationString = htmlspecialchars($_POST['confirmation']);
-        $confirmation = intval($confirmationString);
-        if ($confirmation === 1) {
-            updateField('confirmedAccount', 1);
-        } elseif ($confirmation === 0) {
-            updateField('confirmedAccount', 0);
-        }
-    }
-
-    // passer le compte en administrateurice ou simple utilisateurice
-    if (isset($_POST['admin'])) {
-        $adminString = htmlspecialchars($_POST['admin']);
-        $admin = intval($adminString);
-        if (is_int($admin)) {
-            if ($admin === 1) {
-                updateField('admin', 1);
-            } elseif ($admin === 0) {
-                updateField('admin', 0);
-            }
-        }
-    }
+    // modification des éléments
+    updateField('email', 'newEmail', 'email');
+    updateField('text', 'newName', 'name');
+    updateField('text', 'newSurname', 'surname');
+    updateField('number', 'confirmation', 'confirmedAccount');
+    updateField('number', 'admin', 'admin');
 
     // supprimer le compte et les livres associés
     if (isset($_POST['delete'])) {
@@ -97,19 +69,22 @@ if ($_SESSION['user']->admin == 1) :
         $delete = intval($deleteString);
 
         if (is_int($delete)) {
-            if ($delete == 1) {
+            if ($delete === 1) {
 
                 global $pdo;
                 global $person_email;
 
-                $deleteAccount = $pdo->prepare('DELETE * FROM accounts WHERE email = :email');
+                $deleteAccount = $pdo->prepare('DELETE FROM accounts WHERE email = :email');
                 $deleteAccount->execute([
                     'email' => $person_email
                 ]);
-                $deleteBooks = $pdo->prepare('DELETE * FROM books WHERE email = :email');
+                $deleteBooks = $pdo->prepare('DELETE FROM books WHERE email = :email');
                 $deleteBooks->execute([
                     'email' => $person_email
                 ]);
+
+                unset($_SESSION['old-email-modif']);
+                Header('location:admin-modif-data.php?message=Validation+successful');
             }
         }
     }
