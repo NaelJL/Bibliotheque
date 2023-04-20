@@ -68,7 +68,7 @@ input {
     color: white;
     background-color: #252634;
     border-radius: 5px;
-    border: none;
+    border: 1px solid transparent;
     padding: 7px 10px;
 }
 input[type="text"], input[type="email"], input[type="password"],  input[type="date"], input[type="number"] {
@@ -81,6 +81,27 @@ input[type="submit"] {
 input[type="submit"]:hover {
     cursor: pointer;
     color: white;
+}
+input:focus {
+    outline: none;
+}
+.instructions {
+    font-size: 18px;
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    color: hotpink;
+}
+.valid {
+    border-color: darkcyan;
+}
+.invalid {
+    border-color: hotpink;
+}
+input.invalid+p {
+    opacity: 1;
+    height: auto;
+    margin: 10px auto 10px 10px;
 }
 .error {
     color: hotpink;
