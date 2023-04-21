@@ -1,7 +1,6 @@
 <?php
 session_start();
 require 'head.php';
-require 'cookie_handler.php';
 ?>
 
 <!-- Si l'utilisateurice est connecté-e et le cookie time valide -->
@@ -38,25 +37,12 @@ if ($_SESSION['user']) :
         $books = $show->fetchAll();
 
         if ($books) :
-            foreach ($books as $book) :
-
-                // formater les dates pour qu'elles soient plus lisibles
-                $date_borrowed = stripslashes($book->date_borrowed);
-                if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_borrowed)) {
-                    $date_borrowed_date = new DateTime($date_borrowed);
-                    $date_borrowed_ok = $date_borrowed_date->format('d/m/Y');
-                }
-                $date_return = stripslashes($book->date_return);
-                if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_return)) {
-                    $date_return_date = new DateTime($date_return);
-                    $date_return_ok = $date_return_date->format('d/m/Y');
-                }
-        ?>
+            foreach ($books as $book) : ?>
 
                 <article class="book-card">
                     <p>Titre : <strong><?php echo $book->title ?></strong></p>
-                    <p>Date d'emprunt : <strong><?php echo $date_borrowed_ok; ?></strong></p>
-                    <p>Date de retour : <strong><?php echo $date_return_ok; ?></strong></p>
+                    <p>Date d'emprunt : <strong><?php format_date($book->date_borrowed); ?></strong></p>
+                    <p>Date de retour : <strong><?php format_date($book->date_return); ?></strong></p>
 
                     <?php
                     // Indiquer l'email de la personne qui emprunte

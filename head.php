@@ -12,6 +12,8 @@
 
 <?php
 $max_length = 30;
+require 'cookie_handler.php';
+require 'function-format-date.php';
 ?>
 
 <body>

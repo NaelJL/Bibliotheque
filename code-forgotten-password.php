@@ -1,7 +1,6 @@
 <?php
 session_start();
 require 'head.php';
-require 'cookie_handler.php';
 ?>
 
 <?php

@@ -1,7 +1,6 @@
 <?php
 session_start();
 require 'head.php';
-require 'cookie_handler.php';
 ?>
 
 <!-- Si l'utilisateurice est connecté-e et le cookie time valide -->

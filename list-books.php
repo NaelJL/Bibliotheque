@@ -1,7 +1,6 @@
 <?php
 session_start();
 require 'head.php';
-require 'cookie_handler.php';
 ?>
 
 <!-- Si l'utilisateurice est connecté-e et le cookie time valide -->
@@ -244,16 +243,7 @@ if ($_SESSION['user']) :
                         <?php $pages = $book->pages ? "<strong>$book->pages</strong>" : "-";
                         echo  $pages; ?>
                     </p>
-
-                    <?php // formater les dates pour qu'elles soient plus lisibles
-                    $date_return = stripslashes($book->date_return);
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_return)) {
-                        $date_return_date = new DateTime($date_return);
-                        $date_return_ok = $date_return_date->format('d/m/Y');
-                    }
-                    ?>
-
-                    <p>Ce livre est déjà emprunté jusqu'au : <strong><?php echo $date_return_ok ?></strong></p>
+                    <p>Ce livre est déjà emprunté jusqu'au : <strong><?php format_date($book->date_return); ?></strong></p>
 
                 </article>
 
