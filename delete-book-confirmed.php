@@ -25,10 +25,17 @@ if ($_SESSION['user']) :
 
                 $email = $_SESSION['user']->email;
 
-                $delete = $pdo->prepare('DELETE FROM books WHERE id = :id AND email = :email');
+                $person = $pdo->prepare('SELECT id FROM accounts WHERE email = :email');
+                $person->execute([
+                    'email' => $email
+                ]);
+                $result_person = $person->fetch();
+                $result_id_person = $result_person->id;
+
+                $delete = $pdo->prepare('DELETE FROM books WHERE id = :id AND id_person = :id_person');
                 $delete->execute([
                     'id' => $id,
-                    'email' => $email
+                    'id_person' => $result_id_person
                 ]);
 
                 // retourner sur la page des livres prêtés

@@ -21,27 +21,27 @@ if ($_SESSION['user']) :
         <div>
             <label for="title">(*) Titre du livre</label>
             <input type="text" id="title" name="title" value="" required />
-            <p>Cet espace est limité à 30 caractères ( ' et : )</p>
+            <p>Cet espace est limité à 30 caractères (lettres, chiffres ' et : )</p>
         </div>
         <div>
             <label for="author">(*) Auteur-trice-s</label>
             <input type="text" id="author" name="author" value="" required />
-            <p>Cet espace est limité à 25 caractères ( ' et : )</p>
+            <p>Cet espace est limité à 25 caractères (lettres, chiffres ' et : )</p>
         </div>
         <div>
             <label for="translator">Traducteur-ice-s (s'il y en a)</label>
             <input type="text" id="translator" name="translator" value="" />
-            <p>Cet espace est limité à 25 caractères ( ' et : )</p>
+            <p>Cet espace est limité à 25 caractères (lettres, chiffres ' et : )</p>
         </div>
         <div>
             <label for="collection">Collection</label>
             <input type="text" id="collection" name="collection" value="" />
-            <p>Cet espace est limité à 25 caractères ( ' et : )</p>
+            <p>Cet espace est limité à 25 caractères (lettres, chiffres ' et : )</p>
         </div>
         <div>
             <label for="edition">Edition</label>
             <input type="text" id="edition" name="edition" value="" />
-            <p>Cet espace est limité à 25 caractères ( ' et : )</p>
+            <p>Cet espace est limité à 25 caractères (lettres, chiffres ' et : )</p>
         </div>
         <div>
             <label for="publication">Année de publication</label>

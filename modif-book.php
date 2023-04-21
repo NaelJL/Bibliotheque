@@ -27,13 +27,18 @@ if ($_SESSION['user']) :
 
                 // vérifier que la variable contient trois caractères maximum et la convertir en nombre
                 if (strlen($_POST['modification']) <= 3) {
-                    $id_string = trim(htmlspecialchars($_POST['non-available']));
+                    $id_string = trim(htmlspecialchars($_POST['modification']));
                     $id = intval($id_string);
 
                     $query = $pdo->prepare('SELECT * FROM books WHERE id = :id');
                     $query->execute([
                         'id' => $id
                     ]);
+
+                    $book = $query->fetch();
+
+                    // stocker l'id du livre dans une variable de session
+                    $_SESSION['id-modif-book'] = $id;
                 }
             }
         }
@@ -48,52 +53,68 @@ if ($_SESSION['user']) :
 
     <h1>Modifier un de mes livres</h1>
 
-    <form action="" method="POST">
-        <div>
-            <label for="title">(*) Titre du livre</label>
-            <input type="hidden" name="newTitle" value="<?php echo $all_book->id ?>" />
-            <input type="text" id="title" name="title" value="" required />
-        </div>
-        <div>
-            <label for="author">(*) Auteur-trice-s</label>
-            <input type="text" id="author" name="author" value="" required />
-        </div>
-        <div>
-            <label for="translator">Traducteur-ice-s (s'il y en a)</label>
-            <input type="text" id="translator" name="translator" value="" />
-        </div>
-        <div>
-            <label for="collection">Collection</label>
-            <input type="text" id="collection" name="collection" value="" />
-        </div>
-        <div>
-            <label for="edition">Edition</label>
-            <input type="text" id="edition" name="edition" value="" />
-        </div>
-        <div>
-            <label for="publication">Année de publication</label>
-            <input type="date" id="publication" name="publication" value="" />
-        </div>
-        <div>
-            <label for="pages">Nombre de pages</label>
-            <input type="number" min="0" id="pages" name="pages" value="" />
-        </div>
+    <?php
+    if ($book->available == 1) :
+    ?>
+        <section>
+            <p><strong>Vous allez modifier
+                    <?php echo $book->title; ?>
+                    de
+                    <?php echo $book->author; ?>
+                </strong></p>
+        </section>
 
-        <p><em>(*) Ces champs sont obligatoires<em></p>
-        <input type="submit" value="Ajouter ce livre" />
-    </form>
+        <section style="flex-direction: column;">
+            <form action="modif-book-validation.php" method="POST">
+                <input type="text" name="newTitle" value="" placeholder="Changement de titre" required />
+                <input type="submit" value="Valider" />
+            </form>
 
-    <!-- Si l'utilisateurice n'est pas connecté-e -->
-<?php else : ?>
+            <form action="modif-book-validation.php" method="POST">
+                <input type="text" name="newAuthor" value="" placeholder="Changement d'auteur-trice" required />
+                <input type="submit" value="Valider" />
+            </form>
 
-    <nav>
-        <p><a href="index.php">Page d'accueil</a></p>
-    </nav>
+            <form action="modif-book-validation.php" method="POST">
+                <input type="text" name="newTranslator" value="" placeholder="Changement de traducteur-trice" required />
+                <input type="submit" value="Valider" />
+            </form>
 
-    <h1>Vous devez être connecté.e pour avoir accès à cette page</h1>
+            <form action="modif-book-validation.php" method="POST">
+                <input type="text" name="newCollection" value="" placeholder="Changement de collection" required />
+                <input type="submit" value="Valider" />
+            </form>
 
-<?php endif ?>
+            <form action="modif-book-validation.php" method="POST">
+                <input type="text" name="newEdition" value="" placeholder="Changement d'édition" required />
+                <input type="submit" value="Valider" />
+            </form>
 
-</body>
+            <form action="modif-book-validation.php" method="POST">
+                <input type="text" name="newPublication" value="" placeholder="Changement d'année de publication" required />
+                <input type="submit" value="Valider" />
+            </form>
 
-</html>
+            <form action="modif-book-validation.php" method="POST">
+                <input type="text" name="newPages" value="" placeholder="Changement du nombre de pages" required />
+                <input type="submit" value="Valider" />
+            </form>
+
+        <?php else : ?>
+            <p>Le livre est emprunté. Il pourra être modifié à son retour.</p>
+        <?php endif; ?>
+
+        <!-- Si l'utilisateurice n'est pas connecté-e -->
+    <?php else : ?>
+
+        <nav>
+            <p><a href="index.php">Page d'accueil</a></p>
+        </nav>
+
+        <h1>Vous devez être connecté.e pour avoir accès à cette page</h1>
+
+    <?php endif ?>
+
+    </body>
+
+    </html>

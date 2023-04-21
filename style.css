@@ -85,13 +85,6 @@ input[type="submit"]:hover {
 input:focus {
     outline: none;
 }
-.instructions {
-    font-size: 18px;
-    opacity: 0;
-    height: 0;
-    margin: 0;
-    color: hotpink;
-}
 .valid {
     border-color: darkcyan;
 }
@@ -102,6 +95,13 @@ input.invalid+p {
     opacity: 1;
     height: auto;
     margin: 10px auto 10px 10px;
+}
+input+p {
+    font-size: 18px;
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    color: hotpink;
 }
 .error {
     color: hotpink;

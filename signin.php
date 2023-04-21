@@ -20,22 +20,22 @@ use PHPMailer\PHPMailer\SMTP;
     <div>
         <label for="name">Votre prénom</label>
         <input type="text" name="name" id="name" value="" maxlenght="15" required />
-        <p class="instructions">Votre prénom doit comprendre entre 2 et 15 lettres.</p>
+        <p>Votre prénom doit comprendre entre 2 et 15 lettres.</p>
     </div>
     <div>
         <label for="surname">Votre nom</label>
         <input type="text" name="surname" id="surname" value="" maxlenght="15" required />
-        <p class="instructions">Votre nom doit comprendre entre 2 et 15 lettres.</p>
+        <p>Votre nom doit comprendre entre 2 et 15 lettres.</p>
     </div>
     <div>
         <label for="email">Votre adresse email</label>
         <input type="email" name="email" id="email" value="" required />
-        <p class="instructions">Votre adresse email doit contenir un @</p>
+        <p>Votre adresse email doit être valide</p>
     </div>
     <div>
         <label for="password">Un mot de passe</label>
         <input type="password" name="password" id="password" value="" required />
-        <p class="instructions">Votre mot de passe doit contenir entre 5 et 10 caractères : lettres, chiffres et caractères spéciaux (_ @ & $)</p>
+        <p>Votre mot de passe doit contenir entre 5 et 10 caractères : lettres, chiffres et caractères spéciaux (_ @ & $)</p>
     </div>
     <div>
         <label for="password2">Confirmez le mot de passe</label>

@@ -1,9 +1,9 @@
 // regular expressions pour les pages signin, login, modif-data (admin et user), share-a-book, modif-book (admin et user)
 const patterns = {
     'name': /^[a-z]{2,15}$/i,
-    'surname': /^[a-z]{2,15}$/i,
+    'surname': /^[a-z- ]{2,15}$/i,
     // \w : lettres majuscules, minuscules, chiffres et _
-    'email': /^([\w\.-]+)@([a-z\d]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$/i,
+    'email': /^([\w\.]+)@([a-z\d]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$/i,
     'password': /^[\w@&$]{5,10}$/i,
     'password2': /^[\w@&$]{5,10}$/i,
     // acceptent les espaces, apostrophes et :
