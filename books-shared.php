@@ -59,9 +59,14 @@ if ($_SESSION['user']) :
                         <p>Personne qui emprunte : <strong><?php echo $email; ?></strong></p>
                     <?php endif; ?>
 
-                    <!-- Indiquer le livre comme étant rendu -->
-                    <button data-book-id="<?php echo $book->id; ?>" class="button" style="display: block">Indiquer comme rendu</button>
-                    <p id="confirmation-message"></p>
+                    <!-- Indiquer le livre comme étant rendu (avec bouton de confirmation) -->
+                    <button class="button">Indiquer le livre comme rendu</button>
+                    <div class="form">
+                        <form action="returned-book.php" method="POST">
+                            <input type="hidden" name="returned" value="<?php echo $book->id ?>" />
+                            <input type="submit" value="Confirmez le retour" style="margin: 5px auto" />
+                        </form>
+                    </div>
                 </article>
 
             <?php endforeach; ?>
@@ -135,11 +140,14 @@ if ($_SESSION['user']) :
                             <input type="submit" value="Modifier le livre" style="margin: 5px auto" />
                         </form>
 
-                        <!-- Pouvoir le supprimer -->
-                        <form action="delete-book.php" method="POST">
-                            <input type="hidden" name="delete" value="<?php echo $all_book->id ?>" />
-                            <input type="submit" value="Supprimer le livre" style="margin: 5px auto" />
-                        </form>
+                        <!-- Pouvoir le supprimer (avec bouton de confirmation) -->
+                        <button class="button">Supprimer le livre</button>
+                        <div class="form">
+                            <form action="delete-book.php" method="POST">
+                                <input type="hidden" name="delete" value="<?php echo $all_book->id ?>" />
+                                <input type="submit" value="Confirmez la suppression" style="margin: 5px auto" />
+                            </form>
+                        </div>
                     <?php endif; ?>
 
                 </article>

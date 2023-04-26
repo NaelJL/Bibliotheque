@@ -1,29 +1,16 @@
 const buttons = document.querySelectorAll('.button');
+const forms = document.querySelectorAll('.form');
 
-buttons.forEach(button => {
-
-    button.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const bookId = this.dataset.bookId;
-    
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'returned-book.php', true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-    
-                // Afficher un message de confirmation
-                const confirmationMessage = document.getElementById('confirmation-message');
-                confirmationMessage.innerHTML = 'Le livre a été retourné avec succès !';
-                button.style.display = "none";
-            } else {
-                alert('Une erreur est survenue lors de la requête AJAX.');
-            }
-        };
-        xhr.onerror = function() {
-            alert('Une erreur est survenue lors de la requête AJAX.');
-        };
-        xhr.send('returned=' + bookId);
-    });
-});
+// Pour chaque bouton cliqué, faire apparaitre le formulaire et disparaitre le bouton
+for (let i = 0; i < buttons.length; i++) {
+  buttons[i].addEventListener('click', function() {
+    const form = forms[i];
+    if (form.style.display === 'none') {
+      form.style.display = 'block';
+      buttons[i].style.display = 'none';
+    } else {
+      form.style.display = 'none';
+      buttons[i].style.display = 'block';
+    }
+  });
+}

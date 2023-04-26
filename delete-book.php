@@ -7,61 +7,44 @@ require 'head.php';
 <?php
 // if ($_SESSION['user'] && isset($_COOKIE[$cookie_name]) && time() < $_COOKIE[$cookie_name]) :
 if ($_SESSION['user']) :
-?>
-
-    <nav>
-        <p><a href="my-account.php">Retourner sur mon compte</a></p>
-        <p><a href="logout.php">Me déconnecter</a></p>
-    </nav>
-
-    <?php
 
     $pdo = new PDO('sqlite:database.sqlite', null, null, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
     ]);
-    ?>
 
-    <h1>Supprimer un livre</h1>
+    // confirmer la suppression définitive d'un livre
+    if (isset($_POST['delete'])) {
+        if (!empty($_POST['delete'])) {
 
-    <section>
-        <?php
+            // vérifier que la variable contient 3 caractères maximum et la convertir en nombre
+            if (strlen($_POST['delete']) <= 3) {
+                $id_string = trim(htmlspecialchars($_POST['delete']));
+                $id = intval($id_string);
 
-        // confirmer la suppression définitive d'un livre
-        if (isset($_POST['delete'])) {
-            if (!empty($_POST['delete'])) {
+                $email = $_SESSION['user']->email;
 
-                // vérifier que la variable contient 3 caractères maximum et la convertir en nombre
-                if (strlen($_POST['delete']) <= 3) {
-                    $id_string = trim(htmlspecialchars($_POST['delete']));
-                    $id = intval($id_string);
+                $person = $pdo->prepare('SELECT id FROM accounts WHERE email = :email');
+                $person->execute([
+                    'email' => $email
+                ]);
+                $result_person = $person->fetch();
+                $result_id_person = $result_person->id;
 
-                    $email = $_SESSION['user']->email;
+                $delete = $pdo->prepare('DELETE FROM books WHERE id = :id AND id_person = :id_person');
+                $delete->execute([
+                    'id' => $id,
+                    'id_person' => $result_id_person
+                ]);
 
-                    $show = $pdo->prepare('SELECT * FROM books WHERE id = :id');
-                    $show->execute([
-                        'id' => $id
-                    ]);
-                    $books = $show->fetch();
-                }
+                // retourner sur la page des livres prêtés
+                Header('Location:books-shared.php');
             }
         }
+    }
 
-        if ($books) :
-        ?>
-            <article class="book-card">
-                <p>Titre : <strong><?php echo $books->title ?></strong></p>
-                <p>Auteur-trice : <strong><?php echo $books->author ?></strong></p>
 
-                <!-- Supprimer le livre -->
-                <form action="delete-book-confirmed.php" method="POST">
-                    <input type="hidden" name="delete" value="<?php echo $books->id ?>" />
-                    <input type="submit" value="Supprimer définitivement" />
-                </form>
-            </article>
-
-        <?php endif; ?>
-    </section>
+?>
 
 
     <!-- Si l'utilisateurice n'est pas connecté-e -->

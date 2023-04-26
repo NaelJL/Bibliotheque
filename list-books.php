@@ -9,6 +9,16 @@ require 'head.php';
 if ($_SESSION['user']) :
 ?>
 
+    <style>
+        .button {
+            display: block;
+        }
+
+        .form {
+            display: none;
+        }
+    </style>
+
     <nav>
         <p><a href="my-account.php">Retourner sur mon compte</a></p>
         <p><a href="logout.php">Me déconnecter</a></p>
@@ -99,11 +109,14 @@ if ($_SESSION['user']) :
                         // si l'utilisateurice n'est pas la personne qui propose le livre au prêt
                         if ($id_person !== $all_book->id_person) :
                     ?>
-                            <!-- si le livre est disponible, pouvoir l'emprunter -->
-                            <form action="borrow.php" method="POST">
-                                <input type="hidden" name="borrow" value="<?php echo $all_book->id ?>" />
-                                <input type="submit" value="Emprunter" />
-                            </form>
+                            <!-- si le livre est disponible, pouvoir l'emprunter (avec confirmation) -->
+                            <button class="button">Emprunter</button>
+                            <div class="form">
+                                <form action="borrow.php" method="POST">
+                                    <input type="hidden" name="borrow" value="<?php echo $all_book->id ?>" />
+                                    <input type="submit" value="Confirmer l'emprunt" />
+                                </form>
+                            </div>
                         <?php else : ?>
                             <p><strong>Ce livre vous appartient</strong></p>
                         <?php endif; ?>
