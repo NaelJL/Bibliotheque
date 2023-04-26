@@ -37,9 +37,10 @@ if ($_SESSION['user']) :
                     // AFFICHER LES RESULTATS POUR LA PAGE UTILISATEURICE
                     if ($page === "user-page") :
     ?>
-                        <!-- boucle foreach pour parcourir l'array des résultats -->
-                        <?php foreach ($results as $result) : ?>
-                            <section>
+                        <section>
+                            <!-- boucle foreach pour parcourir l'array des résultats -->
+                            <?php foreach ($results as $result) : ?>
+
                                 <article class="book-card">
                                     <p>Titre : <strong><?php echo $result->title ?></strong></p>
                                     <p>Auteur-trice-s : <strong><?php echo $result->author ?></strong></p>
@@ -104,89 +105,89 @@ if ($_SESSION['user']) :
 
                                 </article>
                             <?php endforeach; ?>
+                        </section>
+                        <hr />
+                        <hr />
+
+                        <!-- AFFICHER LES RESULTATS POUR LA PAGE ADMINISTRATEURICE-->
+                    <?php elseif ($_SESSION['user']->admin == 1 && $page === "admin-page") : ?>
+
+                        <?php // boucle foreach pour parcourir l'array des résultats
+                        foreach ($results as $result) :
+                            $id_book = $result->id;
+                            $id_person_lending = $result->id_person;
+
+                            // récupérer les informations du livre emprunté grâce à l'id
+                            $borrowed_books = $pdo->prepare('SELECT * FROM borrowed_books WHERE borrowed_books.book_id = :id_book');
+                            $borrowed_books->execute([
+                                'id_book' => $id_book
+                            ]);
+                            $results_borrowed_books = $borrowed_books->fetch();
+
+                            $id_person_borrowing = $results_borrowed_books->id_person_borrowing;
+
+                            // récupérer l'email de la personne qui prête grâce à books.id_person
+                            $lender_email_search = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
+                            $lender_email_search->execute([
+                                'id' => $id_person_lending
+                            ]);
+                            $result_lender = $lender_email_search->fetch();
+                            $lender_email = $result_lender->email;
+
+                            // récupérer l'email de la personne qui emprunte grâce à borrowed_books.id_person_borrowing
+                            $borrower_email_search = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
+                            $borrower_email_search->execute([
+                                'id' => $id_person_borrowing
+                            ]);
+                            $result_borrower = $borrower_email_search->fetch();
+                            $borrower_email = $result_borrower->email;
+
+                        ?>
+                            <!-- Afficher les résultats de la recherche avec une carte du livre -->
+                            <section>
+                                <article class="book-card">
+
+                                    <p>Titre : <strong><?php echo $result->title ?></strong></p>
+                                    <p>Auteur-trice-s : <strong><?php echo $result->author ?></strong></p>
+                                    <p>Personne qui prête : <strong><?php echo $lender_email ?></strong></p>
+                                    <p>Personne qui emprunte : <strong><?php echo $borrower_email ?></strong></p>
+                                    <p>Date d'emprunt : <strong><?php format_date($results_borrowed_books->date_borrowed); ?></strong></p>
+                                    <p>Date de retour : <strong><?php format_date($results_borrowed_books->date_return); ?></strong></p>
+
+                                    <?php if ($results_borrowed_books->extension == 0) : ?>
+                                        <p>Non prolongé</p>
+                                    <?php elseif ($results_borrowed_books->extension == 1) : ?>
+                                        <p><strong>Déjà prolongé</strong></p>
+                                    <?php endif; ?>
+
+                                </article>
                             </section>
                             <hr />
                             <hr />
-
-                            <!-- AFFICHER LES RESULTATS POUR LA PAGE ADMINISTRATEURICE-->
-                        <?php elseif ($_SESSION['user']->admin == 1 && $page === "admin-page") : ?>
-
-                            <?php // boucle foreach pour parcourir l'array des résultats
-                            foreach ($results as $result) :
-                                $id_book = $result->id;
-                                $id_person_lending = $result->id_person;
-
-                                // récupérer les informations du livre emprunté grâce à l'id
-                                $borrowed_books = $pdo->prepare('SELECT * FROM borrowed_books WHERE borrowed_books.book_id = :id_book');
-                                $borrowed_books->execute([
-                                    'id_book' => $id_book
-                                ]);
-                                $results_borrowed_books = $borrowed_books->fetch();
-
-                                $id_person_borrowing = $results_borrowed_books->id_person_borrowing;
-
-                                // récupérer l'email de la personne qui prête grâce à books.id_person
-                                $lender_email_search = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
-                                $lender_email_search->execute([
-                                    'id' => $id_person_lending
-                                ]);
-                                $result_lender = $lender_email_search->fetch();
-                                $lender_email = $result_lender->email;
-
-                                // récupérer l'email de la personne qui emprunte grâce à borrowed_books.id_person_borrowing
-                                $borrower_email_search = $pdo->prepare('SELECT email FROM accounts WHERE id = :id');
-                                $borrower_email_search->execute([
-                                    'id' => $id_person_borrowing
-                                ]);
-                                $result_borrower = $borrower_email_search->fetch();
-                                $borrower_email = $result_borrower->email;
-
-                            ?>
-                                <!-- Afficher les résultats de la recherche avec une carte du livre -->
-                                <section>
-                                    <article class="book-card">
-
-                                        <p>Titre : <strong><?php echo $result->title ?></strong></p>
-                                        <p>Auteur-trice-s : <strong><?php echo $result->author ?></strong></p>
-                                        <p>Personne qui prête : <strong><?php echo $lender_email ?></strong></p>
-                                        <p>Personne qui emprunte : <strong><?php echo $borrower_email ?></strong></p>
-                                        <p>Date d'emprunt : <strong><?php format_date($results_borrowed_books->date_borrowed); ?></strong></p>
-                                        <p>Date de retour : <strong><?php format_date($results_borrowed_books->date_return); ?></strong></p>
-
-                                        <?php if ($results_borrowed_books->extension == 0) : ?>
-                                            <p>Non prolongé</p>
-                                        <?php elseif ($results_borrowed_books->extension == 1) : ?>
-                                            <p><strong>Déjà prolongé</strong></p>
-                                        <?php endif; ?>
-
-                                    </article>
-                                </section>
-                                <hr />
-                                <hr />
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    <?php else :
-                    echo "<p class='error'>Aucun résultat</p>?"; ?>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 <?php else :
-                echo "<p class='error'>La recherche est trop longue</p>"; ?>
+                    echo "<p class='error'>Aucun résultat</p>?"; ?>
                 <?php endif; ?>
             <?php else :
-            echo "<p class='error'>La recherche ne peut être vide</p>"; ?>
+                echo "<p class='error'>La recherche est trop longue</p>"; ?>
             <?php endif; ?>
+        <?php else :
+            echo "<p class='error'>La recherche ne peut être vide</p>"; ?>
         <?php endif; ?>
+    <?php endif; ?>
 
 
-        <!-- Si l'utilisateurice n'est pas connecté-e -->
-    <?php else : ?>
+    <!-- Si l'utilisateurice n'est pas connecté-e -->
+<?php else : ?>
 
-        <nav>
-            <p><a href="index.php">Page d'accueil</a></p>
-        </nav>
+    <nav>
+        <p><a href="index.php">Page d'accueil</a></p>
+    </nav>
 
-        <h1>Vous devez être connecté.e pour avoir accès à cette page</h1>
+    <h1>Vous devez être connecté.e pour avoir accès à cette page</h1>
 
-    <?php endif ?>
-    </body>
+<?php endif ?>
+</body>
 
-    </html>
+</html>

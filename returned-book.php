@@ -9,14 +9,8 @@ require 'head.php';
 if ($_SESSION['user']) :
 ?>
 
-    <nav>
-        <p><a href="my-account.php">Retourner sur mon compte</a></p>
-        <p><a href="logout.php">Me déconnecter</a></p>
-    </nav>
-
-    <h1>Confirmer le retour</h1>
-
     <?php
+
     $pdo = new PDO('sqlite:database.sqlite', null, null, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
@@ -39,33 +33,35 @@ if ($_SESSION['user']) :
                     $find->execute([
                         'id' => $id
                     ]);
-                    $book_id_obj = $find->fetch();
-                } else {
-                    echo "<p class='error'>Problème avec le livre</p>";
+                    $book_obj = $find->fetch();
+                    $book_id = $book_obj->book_id;
+
+                    if ($book_id) {
+
+                        // Supprimer le livre de la table borrowed_books comme il n'est plus emprunté
+                        $delete = $pdo->prepare('DELETE FROM borrowed_books WHERE id = :id');
+                        $delete->execute([
+                            'id' => $id
+                        ]);
+
+                        // Mettre à jour la table books pour afficher le livre de nouveau comme disponible
+                        $update = $pdo->prepare('UPDATE books SET available = 1 WHERE id = :id');
+                        $update->execute([
+                            'id' => $book_id
+                        ]);
+                    } else {
+                        echo "<p class='error'>Problème avec le livre</p>";
+                    }
                 }
+            } else {
+                echo "<p class='error'>Problème avec le retour</p>";
             }
-        } else {
-            echo "<p class='error'>Problème avec le retour</p>";
         }
     } catch (PDOException $e) {
         $error = $e->getMessage();
     }
-
-    if ($book_id_obj) :
     ?>
 
-        <section>
-            <article class="book-card">
-                <p>Le livre a bien été rendu</p>
-                <!-- Indiquer le livre comme étant rendu -->
-                <form action="returned-book-confirmed.php" method="POST">
-                    <input type="hidden" name="returned" value="<?php echo $book_id_obj->id ?>" />
-                    <input type="submit" value="Confirmer" />
-                </form>
-            </article>
-        </section>
-
-    <?php endif; ?>
 
     <!-- Si l'utilisateurice n'est pas connecté-e -->
 <?php else : ?>

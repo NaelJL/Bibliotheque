@@ -60,10 +60,8 @@ if ($_SESSION['user']) :
                     <?php endif; ?>
 
                     <!-- Indiquer le livre comme étant rendu -->
-                    <form action="returned-book.php" method="POST">
-                        <input type="hidden" name="returned" value="<?php echo $book->id ?>" />
-                        <input type="submit" value="Indiquer comme rendu" />
-                    </form>
+                    <button data-book-id="<?php echo $book->id; ?>" class="button" style="display: block">Indiquer comme rendu</button>
+                    <p id="confirmation-message"></p>
                 </article>
 
             <?php endforeach; ?>

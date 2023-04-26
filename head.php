@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="regex.js" defer></script>
     <script src="search.js" defer></script>
+    <script src="click-confirmation.js" defer></script>
     <title>Login / Sign in</title>
 </head>
 
